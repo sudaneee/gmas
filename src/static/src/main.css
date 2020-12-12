@@ -1,0 +1,73 @@
+body {
+    background: white;
+    color: #333333;
+
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: white;
+    text-align: center;
+  }
+table, th, td, tr {
+  
+  border-collapse: collapse;
+  font-family: Roboto Slab, serif;
+}
+th, td, tr {
+  padding: 5px;
+  text-align: left;
+  border: 1px solid;    
+  font-family: 'Roboto Slab', serif;
+  font-weight: bold;
+  background-color: white;
+}
+
+
+/*------------Navigation--------*/
+#nav-bar
+{
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.navbar-brand img
+{
+	height: 60px;
+	padding-left: 30px;
+}
+.navbar-nav li
+{
+	padding: 0 10px;
+}
+.navbar-nav li a
+{
+	float: right;
+	text-align: left;
+	
+}
+
+#nav-bar ul li a:hover
+{
+	color: #007bff!important;
+}
+.navbar
+{
+	background: #fff; 
+}
+.navbar-toggler
+{
+	border: none!important;
+}
+.nav-link
+{
+	color: #555!important;
+	font-weight: 600;
+	font-size: 16px;
+}
+.main {
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+

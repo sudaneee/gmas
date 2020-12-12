@@ -1,0 +1,98 @@
+{% extends "src/base.html" %}
+{% block content %}
+	<div>
+		<h1> Upload Result </h1>
+		<h4> Please Select Session, Term, Class and Subject you wish to upload for </h4>
+	</div>
+	<div class="main">
+		<form name="form1" method="POST">
+			{% csrf_token %}
+		 	 <div class="row" style="padding-right: 10px;">
+			    <div class="col">
+			        <select class="form-control" name="session">
+			        	<option>Session</option>
+				        <option>2019/2020</option>
+				        <option>2020/2021</option>
+				        <option>2021/2022</option>
+				    </select>
+			    </div>
+			    <div class="col">
+			        <select class="form-control" name="term">
+			        	<option>Term</option>
+				        <option>First Term</option>
+				        <option>Second Term</option>
+				        <option>Third Term</option>
+				    </select>
+			    </div>
+			    <div class="col">
+			        <select class="form-control" name="class">
+			        	<option>Class</option>
+				        {% for i in classes %}
+				        	<option>{{ i.class_name }}</option>
+					    {% endfor %}
+				    </select>
+			    </div>
+			    <div class="col">
+			        <select class="form-control" name="subject">
+			        	<option>Subject</option>
+				        {% for i in subjects %}
+					    	<option>{{ i.subject_name }}</option>
+					    {% endfor %}
+				    </select>
+			    </div>
+			    <button name="form1" type="submit" class="btn btn-primary">GET</button>
+			</div>	
+		</form>
+	</div>
+
+{% if request.method == 'POST' and "form1" in request.POST %}
+	<div>
+		<h4> Please Insert the students Results approprietly </h4>
+	</div>
+	<div class="row" style="padding-right: 10px;">
+		<div class="col">
+			<h6> Student ID </h6>
+		</div>
+		<div class="col">
+			<h6> Name </h6>
+		</div>
+		<div class="col">
+			<h6> First C.A </h6>
+		</div>
+		<div class="col">
+			<h6> Second C.A </h6>
+		</div>
+		<div class="col">
+			<h6> Exams </h6>
+		</div>
+	</div>
+
+	<form name="form2" method="POST">
+		{% csrf_token %}
+		{% for i, j in result_students_list %}
+	 	 <div class="row" style="padding-right: 10px; padding-left: 10px;">
+		    <div class="col">
+		        <input type="number" class="form-control" value="{{j.id}}" name="id" style="text-align: center;">
+		    </div>
+		    <div class="col">
+				<input type="text" class="form-control" value="{{i.student}}" name="name">
+		    </div>
+		    <div class="col">
+				<input type="number" class="form-control" value={{i.ca1}} name="ca1" style="text-align: center;">
+		    </div>
+		    <div class="col">
+				<input type="number" class="form-control" value={{i.ca2}} name="ca2" style="text-align: center;">
+		    </div>
+		    <div class="col">
+				<input type="number" class="form-control" value={{i.exams}} name="exams" style="text-align: center;">
+		    </div>
+		</div>
+		{% endfor %}
+			<div style="padding-top: 10px; padding-left: 10px;">
+				<button name="form2" type="submit" class="btn btn-primary">UPDATE</button>			
+			</div>
+	</form>
+{% endif %}
+
+{% endblock content %}
+
