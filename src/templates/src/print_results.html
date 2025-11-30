@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Result Sheet</title>
+
+<style>
+/* Base page */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    margin: 0;
+    padding: 0;
+    color: #111;
+}
+
+/* PAGE CONTAINER */
+.page {
+    width: 95%;
+    margin: 18px auto;
+    padding: 18px;
+    page-break-after: always;
+    border: 1px solid #d0d0d0;
+    background: white;
+    position: relative; /* Needed for watermark */
+    box-sizing: border-box;
+}
+
+/* WATERMARK IMAGE */
+.page::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background-image: url("{% static 'src/login/images/logo-m.png' %}");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.08;           /* Light watermark */
+    transform: translate(-50%, -50%);
+    pointer-events: none;    /* Text remains clickable/selectable */
+    z-index: 0;
+}
+
+/* All content sits above watermark */
+.page * {
+    position: relative;
+    z-index: 5;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+.header img {
+    width: 100%;
+    max-height: 90px;
+    object-fit: fill;
+}
+.title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: 0.6px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: auto;
+}
+th, td {
+    border: 1px solid #c6c6c6;
+    padding: 6px 7px;
+    vertical-align: middle;
+    font-size: 11px;
+}
+th {
+    background: #f3f4f6;
+    font-weight: 700;
+    text-align: left;
+}
+
+.section-title {
+    background: #eef1f4;
+    padding: 6px 8px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Signature */
+.signature-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+    gap: 12px;
+}
+.signature-box div {
+    text-align: center;
+    width: 48%;
+}
+.signature {
+    width: 140px;
+    height: 50px;
+    object-fit: contain;
+}
+
+/* Print adjustments */
+@media print {
+    .page {
+        border: none;
+        margin: 0;
+        padding: 8px;
+    }
+    th, td {
+        font-size: 10px;
+        padding: 5px;
+    }
+}
+</style>
+
+</head>
+<body>
+
+{% for r in results %}
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        {% if header_image %}
+            <img src="{{ header_image }}">
+        {% endif %}
+        <div class="title">EXAMINATION REPORT SHEET</div>
+    </div>
+
+    <!-- STUDENT INFO -->
+    <div class="section-title">STUDENT INFORMATION</div>
+    <table>
+        <tr>
+            <th>Name</th><td>{{ r.student }}</td>
+            <th>Class</th><td>{{ r.class }}</td>
+        </tr>
+        <tr>
+            <th>Session</th><td>{{ session }}</td>
+            <th>Term</th><td>{{ term }}</td>
+        </tr>
+        <tr>
+            <th>No. in Class</th>
+            <td>{{ no_in_class }}</td>
+
+            {% if not is_kgn_nur %}
+                <th>Class Position</th>
+                <td>{{ r.position }}</td>
+            {% else %}
+                <th></th><td></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Gender</th><td colspan="3">{{ r.student.gender }}</td>
+        </tr>
+    </table>
+
+    <!-- ACADEMIC PERFORMANCE -->
+    <div class="section-title">ACADEMIC PERFORMANCE</div>
+
+    {% if is_kgn_nur %}
+    <!-- WITHOUT POSITION COLUMN -->
+    <table>
+        <thead>
+            <tr>
+                <th>S/N</th>
+                <th>Subject</th>
+                <th>1st CA</th>
+                <th>2nd CA</th>
+                <th>Exam</th>
+                <th>Total</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for s in r.subjects %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.subject }}</td>
+                <td>{{ s.ca1 }}</td>
+                <td>{{ s.ca2 }}</td>
+                <td>{{ s.exams }}</td>
+                <td>{{ s.total }}</td>
+                <td>{{ s.grade }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <th colspan="4" style="border:none; text-align:right;">Overall Total:</th>
+                <td>{{ r.total }}</td>
+                <th>Average</th>
+                <td>{{ r.average }} ({{ r.grade }})</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    {% else %}
+    <!-- WITH POSITION COLUMN -->
+    <table>
+        <thead>
+            <tr>
+                <th>S/N</th>
+                <th>Subject</th>
+                <th>1st CA</th>
+                <th>2nd CA</th>
+                <th>Exam</th>
+                <th>Total</th>
+                <th>Grade</th>
+                <th>Position</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for s in r.subjects %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.subject }}</td>
+                <td>{{ s.ca1 }}</td>
+                <td>{{ s.ca2 }}</td>
+                <td>{{ s.exams }}</td>
+                <td>{{ s.total }}</td>
+                <td>{{ s.grade }}</td>
+                <td>{{ s.pos }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <th colspan="5" style="border:none; text-align:right;">Overall Total:</th>
+                <td>{{ r.total }}</td>
+                <th>Average</th>
+                <td>{{ r.average }} ({{ r.grade }})</td>
+            </tr>
+        </tfoot>
+    </table>
+    {% endif %}
+
+    <!-- BEHAVIOURAL -->
+    {% if r.bhv %}
+    <div class="section-title">BEHAVIOURAL ASSESSMENT</div>
+    <table>
+        <tr><th>Conduct</th><td>{{ r.bhv.conduct }}</td>
+            <th>Punctuality</th><td>{{ r.bhv.punctuality }}</td></tr>
+
+        <tr><th>Neatness</th><td>{{ r.bhv.neatness }}</td>
+            <th>Creativity</th><td>{{ r.bhv.creativity }}</td></tr>
+
+        <tr><th>Days Present</th><td>{{ r.bhv.days_present }}</td>
+            <th>Days Absent</th><td>{{ r.bhv.days_absent }}</td></tr>
+    </table>
+    {% endif %}
+
+    <!-- COMMENT -->
+    <div class="section-title">GENERAL COMMENT</div>
+    <table>
+        <tr>
+            <th>Teacher's Comment</th>
+            <td>{{ r.comment }}</td>
+        </tr>
+    </table>
+
+    <!-- SIGNATURE -->
+    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+        <tr>
+
+            <!-- SIGNATURE CELL -->
+            <td style="width: 50%; text-align: center; border: 1px solid #c6c6c6; padding: 10px;">
+
+                {% if use_headteacher_sign %}
+                    {% if signs and signs.t_image %}
+                        <img src="{{ signs.t_image.url }}" class="signature">
+                    {% endif %}
+                    <div style="margin-top: 5px; font-weight: bold;">Head Teacher's Signature</div>
+
+                {% else %}
+                    {% if signs and signs.p_image %}
+                        <img src="{{ signs.p_image.url }}" class="signature">
+                    {% endif %}
+                    <div style="margin-top: 5px; font-weight: bold;">Principal's Signature</div>
+                {% endif %}
+
+            </td>
+
+            <!-- DATE CELL -->
+            <td style="width: 50%; text-align: center; border: 1px solid #c6c6c6; padding: 10px;">
+                <div style="margin-top: 25px;">
+                    <strong>Date:</strong> {{ date }}
+                </div>
+            </td>
+
+        </tr>
+    </table>
+
+</div>
+{% endfor %}
+
+</body>
+</html>

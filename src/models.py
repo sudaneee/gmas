@@ -1,6 +1,11 @@
 from django.db import models
 
-
+CATEGORY = (
+    ('Normal', 'Normal'),
+    ('Complement', 'Complement'),
+    ('Schoolarship', 'Schoolarship'),
+    ('Dependant', 'Dependant')
+)
 class Subject(models.Model):
     subject_name = models.CharField(max_length=100)
 
@@ -10,8 +15,11 @@ class Subject(models.Model):
 class StudentClass(models.Model):
     class_name = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ('class_name',)
+
     def __str__(self):
-        return(self.class_name)
+        return str(self.class_name)
 
 class Session(models.Model):
     session_name = models.CharField(max_length=100)
@@ -29,10 +37,13 @@ class Term(models.Model):
 class Student(models.Model):
     student_name = models.CharField(max_length=100)
     student_class = models.ForeignKey(StudentClass, null=True, on_delete=models.SET_NULL)
+    status = models.BooleanField(null=True, default=True)
+    gender = models.CharField(max_length=100, null=True)
+    category = models.CharField(max_length=200, choices=CATEGORY, default='Normal', null=True)
 
     def __str__(self):
         return(self.student_name)
-    
+
 
 class StudentResult(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -52,7 +63,7 @@ class StudentResult(models.Model):
 
     def __str__(self):
         return f'{self.session} {self.term} {self.subject} {self.student}'
-       
+
     def grade(self):
         if (self.ca1 + self.ca2 + self.exams) >=70:
             return "A"
@@ -80,6 +91,11 @@ class StudentBehaviouralAssessment(models.Model):
     neatness = models.IntegerField(default=0)
     creativity = models.IntegerField(default=0)
     physical = models.IntegerField(default=0)
+    school_opened = models.PositiveIntegerField(default=0)
+    days_present = models.PositiveIntegerField(default=0)
+    days_absent = models.PositiveIntegerField(default=0)
+    next_date_of_resumption = models.CharField(max_length=100, null=True)
+
 
 
     def __str__(self):
@@ -89,7 +105,7 @@ class signature(models.Model):
     classs = models.CharField(max_length=100)
     t_image = models.ImageField(upload_to='signs')
     p_image = models.ImageField(upload_to='signs')
-        
+
 
     def __str__(self):
         return self.classs

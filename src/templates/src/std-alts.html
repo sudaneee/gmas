@@ -1,0 +1,155 @@
+{% extends "src/index.html" %}
+{% block content %}
+
+
+	<style type="text/css">
+		.container {
+		  height: 100px;
+		  position: relative;
+		}
+
+		.center {
+		  margin: 0;
+		  position: absolute;
+		  top: 25%;
+		  left: 50%;
+
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+			color: black;
+			text-align: center;
+		}
+		.form-control{
+			color: black;
+		}
+
+	</style>
+
+
+<div class="row">
+
+
+	<div class="col-md-12">
+		<div>
+			<h4> Creating New Student </h4>
+			<h6> Please Enter Student Name and Select Class</h6>
+		</div>
+		<form name="form3" method="POST">
+			{% csrf_token %}
+			 	<div class="row" style="padding-right: 10px;">
+				    <div class="col">
+						<input type="text" class="form-control" placeholder = "Enter Student Name" name="name" style="text-align: center;">
+					</div>
+				    <div class="col">
+	                    <select class="form-control" name="class">
+	                    	<option>{{student.student_class}}</option>
+	                        {% for i in classes %}
+	                            <option>{{ i.class_name }}</option>
+	                        {% endfor %}
+	                    </select>
+					</div>
+					<button name="add" type="submit" class="btn btn-primary">Add</button>
+				</div>
+		</form>
+	</div>
+
+	<!--------------------------Update and Delete of Students---------------------->
+	<div class="col-md-12" style="margin-top: 20px;">
+	{% if messages %}
+	  {% for msg in messages %}
+	    <div class="alert alert-info alert-dismissable">
+	      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	      {{msg.message}}
+	    </div>
+	  {% endfor %}
+	{% endif %}
+		<div>
+			<h4> Update Students Info</h4>
+			<h6> Please Enter Student Reg No to Edit Student Information</h6>
+		</div>
+		<div class="main">
+			<form name="form1" method="POST">
+				{% csrf_token %}
+			 	 <div class="row" style="padding-right: 10px;">
+				    <div class="col">
+					<input type="text" class="form-control" placeholder ="Student Reg No" name="ID" style="text-align: center;">			    </div>
+				    <button name="form1" type="submit" class="btn btn-primary">GET</button>
+				</div>
+			</form>
+		</div>
+
+
+	{% if request.method == 'POST' and "form1" in request.POST %}
+	<div style="padding-top: 10px;">
+		<div class="oho">
+			<form name="form2" method="POST">
+				{% csrf_token %}
+				 	<div class="row" style="padding-right: 10px;">
+					    <div class="col">
+							<input type="number" class="form-control" value ="{{student.id}}" name="ID" style="text-align: center;">
+						</div>
+					    <div class="col">
+							<input type="text" class="form-control" value ="{{student.student_name}}" name="name" style="text-align: center;">
+						</div>
+					    <div class="col">
+		                    <select class="form-control" name="class">
+		                    	<option>{{student.student_class}}</option>
+		                        {% for i in classes %}
+		                            <option>{{ i.class_name }}</option>
+		                        {% endfor %}
+		                    </select>
+						</div>
+						<div class="col">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckIndeterminate" name="status">
+                          <label class="form-check-label" for="flexCheckIndeterminate">
+                            Active
+                          </label>
+                        </div>
+					</div>
+					<div class="col" style="padding-left: 10px; padding-top: 10px; margin: 0; position: absolute; left: 40%;">
+						<div class="col-md-6">
+							<button name="update" type="submit" class="btn btn-primary">Update</button>
+							<button name="delete" type="submit" class="btn btn-primary" style="background-color:red;">Delete</button>
+						</div>
+				    </div>
+			</form>
+		</div>
+	</div>
+		{% endif %}
+	</div>
+
+	<!-----------------------------------Changing Student Class---------------------------->
+	<div class="col-md-12">
+		<div>
+			<h4> Changing Student Class </h4>
+
+		</div>
+		<form name="form4" method="POST">
+			{% csrf_token %}
+			 	<div class="row" style="padding-right: 10px;">
+				    <div class="col">
+	                    <select class="form-control" name="current_class">
+	                    	<option>Current Class</option>
+	                        {% for i in classes %}
+	                            <option>{{ i.class_name }}</option>
+	                        {% endfor %}
+	                    </select>
+					</div>
+				    <div class="col">
+	                    <select class="form-control" name="promotion_class">
+	                    	<option>Promotion Class</option>
+	                        {% for i in classes %}
+	                            <option>{{ i.class_name }}</option>
+	                        {% endfor %}
+	                    </select>
+					</div>
+					<button name="save" type="submit" class="btn btn-primary">Save</button>
+				</div>
+		</form>
+	</div>
+
+</div>
+
+{% endblock content %}
+

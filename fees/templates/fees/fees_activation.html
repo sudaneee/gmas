@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700,900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="{% static 'eval/fonts/icomoon/style.css' %}" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'eval/css/bootstrap.min.css' %}" />
+
+    <!-- Style -->
+    <link rel="stylesheet" href="{% static 'eval/css/style.css' %}" />
+
+    <title>Fees Activation</title>
+  </head>
+  <body>
+    <footer>
+      <div class="row">
+        <div class="col-md-12">
+          <p style="text-align: center">
+           Green Field Modern Academy Zaria: All rights reserved
+            <a href="mailto:zariameritschool@gmail.com"
+              >greenfieldmodernacadamyzaria@gmail.com</a
+            >
+          </p>
+        </div>
+      </div>
+    </footer>
+
+
+
+    <div class="content">
+      <div class="container">
+        <div class="row align-items-stretch no-gutters contact-wrap">
+          <div class="col-md-12">
+            <img
+              style="height: 100%; width: 100%"
+              src="{% static 'eval/images/gmaz_.png' %}"
+            />
+          </div>
+          <div class="col-md-12">
+            {% if messages %} {% for msg in messages %}
+            <div class="alert alert-success alert-dismissable">
+              <button
+                type="button"
+                class="close"
+                data-dismiss="alert"
+                aria-hidden="true"
+              >
+                &times;
+              </button>
+              <p class="text-center">{{msg.message}}</p>
+            </div>
+            {% endfor %} {% endif %}
+            <div class="form h-100">
+              <h3>Fees Record Keeping</h3>
+              <form name="form1" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="" class="col-form-label"
+                      >Student's Registration Number *</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="reg_no"
+                      id="reg_no"
+                      placeholder="Student's Registration Number"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label for="" class="col-form-label">Session *</label>
+                    <select class="custom-select" id="session" name="session">
+                      <option>Select Session</option>
+                      {% for i in session %}
+                      <option>{{i.session_name}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="col-md-6 form-group mb-3">
+                    <label for="message" class="col-form-label">Term *</label>
+                    <select class="custom-select" id="term" name="term">
+                      <option>Select Term</option>
+                      <option>First Term</option>
+                      <option>Third Term</option>
+                      <option>Second Term</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label for="message" class="col-form-label"
+                      >Purpose of Payment *</label
+                    >
+                    <select
+                      class="custom-select"
+                      id="purpose"
+                      name="purpose"
+                      onchange="showDiv('hidden_div', this)"
+                    >
+                      <option value="Select Purpose of Payment">Select Purpose of Payment</option>
+                      <option value="School Fees">School Fees</option>
+                      <option value="New Student Registration Fees">New Student Registration Fees</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label for="" class="col-form-label"
+                    >Amount Paid *</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="amount_paid"
+                    id="amount_paid"
+                    placeholder="Amount"
+                  />
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 form-group mb-3">
+                      <label for="message" class="col-form-label">Mode of Payment *</label>
+                      <select class="custom-select" id="payment_mode" name="payment_mode">
+                        <option>Select Mode of Payment</option>
+                        <option>Bank-Transfer</option>
+                        <option>Bank-Deposit</option>
+                        <option>Cash-Deposi</option>
+                      </select>
+                    </div>
+                </div>
+                
+
+
+                <div class="row">
+                  <div class="col-md-12 form-group btn-subm">
+                    <button name="form" type="submit" class="btn btn-primary">
+                      Submit
+                    </button>
+                    <span class="submitting"></span>
+                  </div>
+                </div>
+              </form>
+
+              <div id="form-message-warning mt-4"></div>
+              <div id="form-message-success">
+                Your message was sent, thank you!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="row">
+        <div class="col-md-12">
+          <p style="text-align: center">
+            Powered by Musaddiq Technologies Ltd:
+            <a href="mailto:ismailabbas355@gmail.com">07060936935</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="{% static 'eval/js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'eval/js/popper.min.js' %}"></script>
+    <script src="{% static 'eval/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'eval/js/jquery.validate.min.js' %}"></script>
+    <script src="{% static 'eval/js/main.js' %}"></script>
+  
+
+  </body>
+</html>

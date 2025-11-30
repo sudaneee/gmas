@@ -25,13 +25,15 @@ SECRET_KEY = '9smhacq56rs-0_6l%wpm)haq$of&73r1-zfgvqdraq1$r!cnw&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['gmas.pythonanywhere.com', 'www.zariamerit-online.com.ng', 'localhost', '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'src.apps.SrcConfig',
+    'fees.apps.FeesConfig',
+    'eval.apps.EvalConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'src.context_processors.site_settings',
             ],
         },
     },
@@ -119,6 +122,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files (uploads)
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#===============For Pythonwhere ================
+# STATIC_URL = '/static/'
+# STATIC_ROOT = '/home/sudaniy65/zms/static/'
+
+# MEDIA_ROOT = '/home/sudaniy65/zms/media/'
+# MEDIA_URL = '/media/'
+
