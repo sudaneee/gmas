@@ -25,7 +25,7 @@ SECRET_KEY = '9smhacq56rs-0_6l%wpm)haq$of&73r1-zfgvqdraq1$r!cnw&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gmas.pythonanywhere.com', 'www.zariamerit-online.com.ng', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

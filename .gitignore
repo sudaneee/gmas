@@ -1,2 +1,19 @@
-myenv/
-gmas.zip
+# SQLite database
+*.sqlite3
+db.sqlite3
+
+# Media files
+media/
+
+# Python / Django
+*.pyc
+__pycache__/
+
+# Virtual environment
+venv/
+
+# Environment variables
+*.env
+
+# Logs
+*.log
