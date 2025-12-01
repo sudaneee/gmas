@@ -1476,62 +1476,63 @@ def score_sheet(request):
         }
         return render(request, 'src/score_sheet.html', context)
 
+
+
+
+
 def excel_score_sheet(request):
     if request.user.is_authenticated:
         if request.method == 'POST' and "form1" in request.POST:
+
             classs = request.POST['class']
             subject = request.POST['subject']
-            template_name = classs + "-" + subject
+            template_name = f"{classs}-{subject}"
 
-            class_id = StudentClass.objects.get(class_name=classs)
-            class_id = class_id.id
+            # Get class ID
+            class_id = StudentClass.objects.get(class_name=classs).id
 
-            ids = []
-            names = []
-            ca1 = []
-            ca2 = []
-            exams = []
+            # Get students in the class
+            dukka = Student.objects.filter(student_class=class_id)
 
-            dukka = Student.objects.filter(student_class=class_id).all()
-
-            for i in dukka:
-                ids.append(i.id)
-                names.append(i.student_name)
-                ca1.append(0)
-                ca2.append(0)
-                exams.append(0)
-
-
+            # Create Excel workbook
             book = Workbook()
             sheet = book.active
             sheet.title = 'result'
 
-
+            # Header row
             sheet['A1'] = "ID NO"
             sheet['B1'] = "Names"
             sheet['C1'] = "1st C.A"
             sheet['D1'] = "2nd C.A"
             sheet['E1'] = "Exams"
-            y=2
 
-            for x in range(len(ids)):
-                cell_to_write = sheet.cell(row=y, column=1)
-                cell_to_write.value = ids[x]
-                cell_to_write = sheet.cell(row=y, column=2)
-                cell_to_write.value = names[x]
-                cell_to_write = sheet.cell(row=y, column=3)
-                cell_to_write.value = ca1[x]
-                cell_to_write = sheet.cell(row=y, column=4)
-                cell_to_write.value = ca2[x]
-                cell_to_write = sheet.cell(row=y, column=5)
-                cell_to_write.value = exams[x]
+            y = 2
+
+            # Populate rows
+            for student in dukka:
+                sheet.cell(row=y, column=1, value=student.id)
+                sheet.cell(row=y, column=2, value=student.student_name)
+                sheet.cell(row=y, column=3, value=0)  # CA1
+                sheet.cell(row=y, column=4, value=0)  # CA2
+                sheet.cell(row=y, column=5, value=0)  # Exams
                 y += 1
 
-            response = HttpResponse(content=save_virtual_workbook(book), content_type='application/ms-excel',)
-            response['Content-Disposition'] = 'attachment; filename="%s.xlsx"' % template_name
+            # Save workbook to memory using BytesIO
+            output = BytesIO()
+            book.save(output)
+            output.seek(0)
+
+            # Prepare response
+            response = HttpResponse(
+                output.getvalue(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{template_name}.xlsx"'
+
             return response
 
         else:
+            # GET request — show form
             classes = StudentClass.objects.all()
             subjects = Subject.objects.all()
             context = {
@@ -1539,6 +1540,7 @@ def excel_score_sheet(request):
                 'subjects': subjects
             }
             return render(request, 'src/score_sheet.html', context)
+
     else:
         return render(request, 'src/welcome.html')
 
