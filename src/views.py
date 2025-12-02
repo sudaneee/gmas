@@ -1907,57 +1907,25 @@ def bhvxl(request):
         return render(request, 'src/welcome.html')
 '''
 
+
+
 def behav_sheet(request):
     if request.user.is_authenticated:
 
         if request.method == 'POST' and "form1" in request.POST:
+
             classs = request.POST['class']
-            template_name = classs + " Behaivoral Sheet"
+            template_name = f"{classs} Behavioral Sheet"
 
-            class_id = StudentClass.objects.get(class_name=classs)
+            class_id = StudentClass.objects.get(class_name=classs).id
+            dukka = Student.objects.filter(student_class=class_id)
 
-            class_id = class_id.id
-
-            ids = []
-            names = []
-            conduct = []
-            punc = []
-            ded = []
-            part = []
-            hosp = []
-            creat = []
-            phy = []
-            neat = []
-            school_opened = []
-            days_present = []
-            days_absent = []
-            next_date_of_resumption = []
-
-            dukka = Student.objects.filter(student_class=class_id).all()
-
-            for i in dukka:
-                ids.append(i.id)
-                names.append(i.student_name)
-                conduct.append(0)
-                punc.append(0)
-                ded.append(0)
-                part.append(0)
-                hosp.append(0)
-                creat.append(0)
-                phy.append(0)
-                neat.append(0)
-                school_opened.append(0)
-                days_present.append(0)
-                days_absent.append(0)
-                next_date_of_resumption.append(0)
-
-
-
+            # Create workbook
             book = Workbook()
             sheet = book.active
             sheet.title = 'result'
 
-
+            # Header
             sheet['A1'] = "ID NO"
             sheet['B1'] = "Names"
             sheet['C1'] = "conduct"
@@ -1968,61 +1936,51 @@ def behav_sheet(request):
             sheet['H1'] = "creat."
             sheet['I1'] = "phy."
             sheet['J1'] = "neat."
-            sheet['K1'] = "school_opened."
-            sheet['L1'] = "days_present."
-            sheet['M1'] = "days_absent."
-            sheet['N1'] = "next_date_of_resumption."
-            y=2
+            sheet['K1'] = "school_opened"
+            sheet['L1'] = "days_present"
+            sheet['M1'] = "days_absent"
+            sheet['N1'] = "next_date_of_resumption"
 
-            for x in range(len(ids)):
-                cell_to_write = sheet.cell(row=y, column=1)
-                cell_to_write.value = ids[x]
-                cell_to_write = sheet.cell(row=y, column=2)
-                cell_to_write.value = names[x]
-                cell_to_write = sheet.cell(row=y, column=3)
-                cell_to_write.value = conduct[x]
-                cell_to_write = sheet.cell(row=y, column=4)
-                cell_to_write.value = punc[x]
-                cell_to_write = sheet.cell(row=y, column=5)
-                cell_to_write.value = ded[x]
-                cell_to_write = sheet.cell(row=y, column=6)
-                cell_to_write.value = part[x]
-                cell_to_write = sheet.cell(row=y, column=7)
-                cell_to_write.value = hosp[x]
-                cell_to_write = sheet.cell(row=y, column=8)
-                cell_to_write.value = creat[x]
-                cell_to_write = sheet.cell(row=y, column=9)
-                cell_to_write.value = phy[x]
-                cell_to_write = sheet.cell(row=y, column=10)
-                cell_to_write.value = neat[x]
-                cell_to_write = sheet.cell(row=y, column=11)
-                cell_to_write.value = school_opened[x]
-                cell_to_write = sheet.cell(row=y, column=12)
-                cell_to_write.value = days_present[x]
-                cell_to_write = sheet.cell(row=y, column=13)
-                cell_to_write.value = days_absent[x]
-                cell_to_write = sheet.cell(row=y, column=14)
-                cell_to_write.value = next_date_of_resumption[x]
+            y = 2
 
+            # Populate rows
+            for st in dukka:
+                sheet.cell(row=y, column=1, value=st.id)
+                sheet.cell(row=y, column=2, value=st.student_name)
+                sheet.cell(row=y, column=3, value=0)
+                sheet.cell(row=y, column=4, value=0)
+                sheet.cell(row=y, column=5, value=0)
+                sheet.cell(row=y, column=6, value=0)
+                sheet.cell(row=y, column=7, value=0)
+                sheet.cell(row=y, column=8, value=0)
+                sheet.cell(row=y, column=9, value=0)
+                sheet.cell(row=y, column=10, value=0)
+                sheet.cell(row=y, column=11, value=0)
+                sheet.cell(row=y, column=12, value=0)
+                sheet.cell(row=y, column=13, value=0)
+                sheet.cell(row=y, column=14, value=0)
                 y += 1
 
-            # response = HttpResponse(content=save_virtual_workbook(book), content_type='application/ms-excel',)
-            # response['Content-Disposition'] = 'attachment; filename=template.xlsx'
-            # return response
+            # Save to BytesIO instead of save_virtual_workbook
+            output = BytesIO()
+            book.save(output)
+            output.seek(0)
 
-            response = HttpResponse(content=save_virtual_workbook(book), content_type='application/ms-excel',)
-            response['Content-Disposition'] = 'attachment; filename="%s.xlsx"' % template_name
+            response = HttpResponse(
+                output.getvalue(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{template_name}.xlsx"'
+
             return response
 
         else:
             classes = StudentClass.objects.all()
-            context = {
-                'classes': classes
-            }
-            return render(request, 'src/behavsheet.html', context)
+            return render(request, 'src/behavsheet.html', {'classes': classes})
 
     else:
         return render(request, 'src/welcome.html')
+
 
 def std_alts(request):
 
