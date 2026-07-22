@@ -99,20 +99,25 @@
 
 	<form name="form2" method="POST">
 		{% csrf_token %}
+		<input type="hidden" name="session" value="{{ session_name }}">
+		<input type="hidden" name="term" value="{{ term_name }}">
+		<input type="hidden" name="class" value="{{ class_name }}">
+		<input type="hidden" name="subject" value="{{ subject_name }}">
 		{% for i in all_results %}
 	 	 <div class="row" style="padding-right: 10px; padding-left: 10px;">
 
+		    <input type="hidden" name="id" value="{{ i.id }}">
 		    <div class="col">
-				<input type="text" class="form-control" value="{{i.student}}" name="name">
+				<input type="text" class="form-control" value="{{i.student}}" name="name" readonly>
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{i.ca1}} name="ca1" style="text-align: center;">
+				<input type="number" class="form-control" value={{i.ca1}} name="ca1" min="0" style="text-align: center;">
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{i.ca2}} name="ca2" style="text-align: center;">
+				<input type="number" class="form-control" value={{i.ca2}} name="ca2" min="0" style="text-align: center;">
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{i.exams}} name="exams" style="text-align: center;">
+				<input type="number" class="form-control" value={{i.exams}} name="exams" min="0" style="text-align: center;">
 		    </div>
 		</div>
 		{% endfor %}

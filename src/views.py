@@ -131,9 +131,9 @@ def ResultUpload(request):
 
             #-----------coverting to interger list----------------
             a_ids = [int(i) for i in f_ids]
-            a_ca1s = [int(i) for i in f_ca1s]
-            a_ca2s = [int(i) for i in f_ca2s]
-            a_exams = [int(i) for i in f_exams]
+            a_ca1s = [max(0, int(i)) for i in f_ca1s]
+            a_ca2s = [max(0, int(i)) for i in f_ca2s]
+            a_exams = [max(0, int(i)) for i in f_exams]
 
             #--------------sumation of the CA to get Total Marks
             for i in range(len(f_ca1s)):
@@ -365,17 +365,11 @@ def resultcreate(request):
         return render(request, 'src/welcome.html')
 
 def updateresult(request):
-    global students
-    global subject
-    global term
-    global session
-    global classs
-    global class_id
-    global session_id
-    global term_id
-    global subject_id
-    global result_ids
     if request.user.is_authenticated:
+        subjects = Subject.objects.all()
+        classes = StudentClass.objects.all()
+        sessions = Session.objects.all()
+        terms = Term.objects.all()
 
         if request.method == 'POST' and "form1" in request.POST:
 
@@ -385,109 +379,70 @@ def updateresult(request):
             subject = request.POST['subject']
 
             ses = Session.objects.get(session_name=session)
-            session_id = ses.id
-
             trm = Term.objects.get(term_name=term)
-            term_id = trm.id
-
             clas = StudentClass.objects.get(class_name=classs)
-            class_id = clas.id
-
             subj = Subject.objects.get(subject_name=subject)
-            subject_id = subj.id
 
-            students = Student.objects.filter(student_class=class_id).all()
-            student_id = []
+            all_results = StudentResult.objects.filter(session=ses, term=trm, student_class=clas, subject=subj).order_by('student__id')
 
-
-
-
-            all_results = StudentResult.objects.filter(session=session_id, term=term_id, student_class=class_id,subject=subject_id).all()
-
-            result_ids = StudentResult.objects.filter(session=session_id, term=term_id, student_class=class_id,subject=subject_id).values_list('id', flat=True)
-            print(result_ids)
-
-
-            for i in students:
-                student_id.append(i.id)
-
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
-            sessions = Session.objects.all()
-            terms = Term.objects.all()
-
-            result_students_list = zip(all_results, students)
             context = {
                 'subjects': subjects,
                 'classes': classes,
+                'sessions': sessions,
+                'terms': terms,
                 'all_results': all_results,
-                'result_students_list': result_students_list
+                'session_name': session,
+                'term_name': term,
+                'class_name': classs,
+                'subject_name': subject,
             }
 
             return render(request, 'src/updateresult.html', context)
 
         if request.method == 'POST' and "form2" in request.POST:
-            ses_ids = []
-            trm_ids = []
-            clas_ids = []
-            subj_ids =[]
-            total_score = []
+            session = request.POST['session']
+            term = request.POST['term']
+            classs = request.POST['class']
+            subject = request.POST['subject']
+
+            ses = Session.objects.get(session_name=session)
+            trm = Term.objects.get(term_name=term)
+            clas = StudentClass.objects.get(class_name=classs)
+            subj = Subject.objects.get(subject_name=subject)
 
             ids = request.POST.getlist('id')
-            names = request.POST.getlist('name')
-            ca1s = request.POST.getlist('ca1')
-            ca1s2 = [int(i) for i in ca1s]
-            ca2s = request.POST.getlist('ca2')
-            ca2s2 = [int(i) for i in ca2s]
-            exams = request.POST.getlist('exams')
-            exams2 = [int(i) for i in exams]
-            for i in range(len(ca1s2)):
-                total_score.append(ca1s2[i] + ca2s2[i] + exams2[i])
-            print(total_score)
+            ca1s = [max(0, int(i)) for i in request.POST.getlist('ca1')]
+            ca2s = [max(0, int(i)) for i in request.POST.getlist('ca2')]
+            examss = [max(0, int(i)) for i in request.POST.getlist('exams')]
+
+            total_score = [ca1s[i] + ca2s[i] + examss[i] for i in range(len(ids))]
 
             position = []
             for total in total_score:
-                count = 0
-                for pos in total_score:
-                    if pos > total:
-                        count += 1
-                position.append(count +1)
+                count = sum(1 for t in total_score if t > total)
+                position.append(count + 1)
 
+            for i, rid in enumerate(ids):
+                StudentResult.objects.filter(id=rid, student_class=clas, subject=subj, session=ses, term=trm).update(
+                    ca1=ca1s[i], ca2=ca2s[i], exams=examss[i], total=total_score[i], subject_position=position[i]
+                )
 
-            print(ca1s)
-
-            for i in students:
-                ses_ids.append(session_id)
-                trm_ids.append(term_id)
-                clas_ids.append(class_id)
-                subj_ids.append(subject_id)
-
-            c = connection.cursor()
-
-            c.executemany("""UPDATE src_studentresult SET ca1=?, ca2=?, exams=?, total=?, subject_position=? WHERE
-                id=? AND student_class_id=? AND subject_id=? AND session_id=? AND term_id=?""",
-                zip(ca1s, ca2s, exams, total_score, position, result_ids, clas_ids, subj_ids, ses_ids, trm_ids))
-            connection.commit()
-            c.close()
             messages.info(request, 'Result Updated Successfully')
 
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
-            sessions = Session.objects.all()
-            terms = Term.objects.all()
             context = {
                 'subjects': subjects,
                 'classes': classes,
-                'students': students
+                'sessions': sessions,
+                'terms': terms,
             }
 
             return render(request, 'src/updateresult.html', context)
         else:
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
             context = {
                 'subjects': subjects,
-                'classes': classes
+                'classes': classes,
+                'sessions': sessions,
+                'terms': terms,
             }
             return render(request, 'src/updateresult.html', context)
     else:
@@ -495,20 +450,11 @@ def updateresult(request):
 
 
 def single_result_update(request):
-    global students
-    global subject
-    global term
-    global session
-    global classs
-    global class_id
-    global session_id
-    global term_id
-    global subject_id
-    global student_qr_id
-    global student_id
-
-
     if request.user.is_authenticated:
+        subjects = Subject.objects.all()
+        classes = StudentClass.objects.all()
+        sessions = Session.objects.all()
+        terms = Term.objects.all()
 
         if request.method == 'POST' and "form1" in request.POST:
             session = request.POST['session']
@@ -518,73 +464,65 @@ def single_result_update(request):
             student_id = request.POST['student_id']
 
             ses = Session.objects.get(session_name=session)
-            session_id = ses.id
-
             trm = Term.objects.get(term_name=term)
-            term_id = trm.id
-
             clas = StudentClass.objects.get(class_name=classs)
-            class_id = clas.id
-
             subj = Subject.objects.get(subject_name=subject)
-            subject_id = subj.id
 
-            student = []
-            student.append(student_id)
-
-
-            get_student = StudentResult.objects.get(student=student_id, session=session_id, term=term_id, student_class=class_id, subject=subject_id)
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
+            get_student = StudentResult.objects.get(student=student_id, session=ses, term=trm, student_class=clas, subject=subj)
             context = {
                 'subjects': subjects,
                 'classes': classes,
+                'sessions': sessions,
+                'terms': terms,
                 'get_student': get_student,
-                'student_id': student_id
+                'student_id': student_id,
+                'session_name': session,
+                'term_name': term,
+                'class_name': classs,
+                'subject_name': subject,
                 }
             return render(request, 'src/single_result_update.html', context)
 
-
-
-
         if request.method == 'POST' and "form2" in request.POST:
+            session = request.POST['session']
+            term = request.POST['term']
+            classs = request.POST['class']
+            subject = request.POST['subject']
+            student_id = request.POST['student_id']
 
+            ses = Session.objects.get(session_name=session)
+            trm = Term.objects.get(term_name=term)
+            clas = StudentClass.objects.get(class_name=classs)
+            subj = Subject.objects.get(subject_name=subject)
 
-            ca1 = request.POST['ca1']
-            ca2 = request.POST['ca2']
-            exams = request.POST['exams']
+            ca1 = max(0, int(request.POST['ca1']))
+            ca2 = max(0, int(request.POST['ca2']))
+            exams = max(0, int(request.POST['exams']))
+            total_score = ca1 + ca2 + exams
 
-            total_score = int(ca1) + int(ca2) + int(exams)
-
-
-
-            queryy = StudentResult.objects.get(student=student_id, session=session_id, term=term_id, student_class=class_id, subject=subject_id)
-
+            queryy = StudentResult.objects.get(student=student_id, session=ses, term=trm, student_class=clas, subject=subj)
             queryy.ca1 = ca1
-            queryy.save()
             queryy.ca2 = ca2
-            queryy.save()
             queryy.exams = exams
-            queryy.save()
             queryy.total = total_score
             queryy.save()
 
+            messages.info(request, 'Result Updated Successfully')
 
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
             context = {
                 'subjects': subjects,
-                'classes': classes
+                'classes': classes,
+                'sessions': sessions,
+                'terms': terms,
                 }
             return render(request, 'src/single_result_update.html', context)
 
-
         else:
-            subjects = Subject.objects.all()
-            classes = StudentClass.objects.all()
             context = {
                 'subjects': subjects,
-                'classes': classes
+                'classes': classes,
+                'sessions': sessions,
+                'terms': terms,
                 }
             return render(request, 'src/single_result_update.html', context)
     else:
@@ -1050,7 +988,29 @@ def get_grade(total, is_kgn_nur):
         return '-'
 
 
+def format_resumption_date(value):
+    """
+    Normalizes resumption dates coming from Excel uploads into a single
+    consistent display format, regardless of whether the source cell was
+    an actual date (Excel gives a datetime object) or free text.
+    """
+    if value is None:
+        return ""
+
+    if isinstance(value, (datetime.datetime, datetime.date)):
+        return value.strftime("%d %B, %Y")
+
+    value_str = str(value).strip()
+    for fmt in ("%m/%d/%y", "%m/%d/%Y", "%d/%m/%y", "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"):
+        try:
+            return datetime.datetime.strptime(value_str, fmt).strftime("%d %B, %Y")
+        except ValueError:
+            continue
+    return value_str
+
+
 def get_comment(avg):
+    if avg < 0 or avg > 100: return "Invalid score."
     if avg <= 49: return "Well done, put more effort."
     elif 50 <= avg <= 59: return "Don't relent in your studies, you can do better."
     elif 60 <= avg <= 69: return "A very good performance."
@@ -1615,9 +1575,9 @@ def not_uploaded_results(request):
 
             #-----------coverting to interger list----------------
             a_ids = [int(i) for i in f_ids]
-            a_ca1s = [int(i) for i in f_ca1s]
-            a_ca2s = [int(i) for i in f_ca2s]
-            a_exams = [int(i) for i in f_exams]
+            a_ca1s = [max(0, int(i)) for i in f_ca1s]
+            a_ca2s = [max(0, int(i)) for i in f_ca2s]
+            a_exams = [max(0, int(i)) for i in f_exams]
 
             #--------------sumation of the CA to get Total Marks
             for i in range(len(f_ca1s)):
@@ -1749,7 +1709,7 @@ def bhvxl(request):
                 school_opened.append(r.value)
                 days_present.append(s.value)
                 days_absent.append(t.value)
-                next_date_of_resumption.append(u.value)
+                next_date_of_resumption.append(format_resumption_date(u.value))
 
 
 
@@ -1995,9 +1955,11 @@ def std_alts(request):
 
             student = Student.objects.get(id=f_s_id)
             classes = StudentClass.objects.all()
+            sessions = Session.objects.all()
 
             context = {
                 "classes": classes,
+                "sessions": sessions,
                 "student": student,
             }
             return render(request, "src/std-alts.html", context)
@@ -2036,38 +1998,53 @@ def std_alts(request):
         if request.method == 'POST' and "save" in request.POST:
             current_class = request.POST['current_class']
             promotion_class = request.POST['promotion_class']
+            promotion_session = request.POST['session']
 
             #-----getting classes ids---------
             c_clas = StudentClass.objects.get(class_name=current_class)
-            c_class_id = c_clas.id
-
             p_clas = StudentClass.objects.get(class_name=promotion_class)
-            #p_class_id = p_clas.id
+            promo_session = Session.objects.get(session_name=promotion_session)
+            third_term = Term.objects.get(term_name="Third Term")
 
             #-----------getting student in a class---------------
-            students_in_class = Student.objects.filter(student_class=c_class_id).all()
-            session_get = Session.objects.all()
-            real_session = session_get[(len(session_get)-2)]
+            students_in_class = Student.objects.filter(student_class=c_clas).all()
+
+            promoted = 0
+            not_promoted = 0
+            skipped = 0
+
             for student in students_in_class:
                 if 'SS 3' not in c_clas.class_name:
-                    student_results = StudentResult.objects.filter(student=student.id, term=3, session=real_session.id).all()
-                    total = []
-                    for result in student_results:
-                        total.append(result.total)
+                    student_results = StudentResult.objects.filter(student=student, term=third_term, session=promo_session)
+                    total = [result.total for result in student_results]
 
-                    avr = sum(total)/len(total)
+                    if not total:
+                        skipped += 1
+                        continue
+
+                    avr = sum(total) / len(total)
                     if avr >= 40:
-
-
-                        query = student
-                        query.student_class = p_clas
-                        query.save()
+                        student.student_class = p_clas
+                        student.save()
+                        promoted += 1
+                    else:
+                        not_promoted += 1
                 else:
                     student.student_class = p_clas
                     student.save()
+                    promoted += 1
+
+            messages.info(
+                request,
+                f'Promotion complete: {promoted} promoted, {not_promoted} not promoted (below 40 average), '
+                f'{skipped} skipped (no Third Term results found for {promotion_session}).'
+            )
+
             classes = StudentClass.objects.all()
+            sessions = Session.objects.all()
             context = {
                 "classes": classes,
+                "sessions": sessions,
             }
 
             return render(request, "src/std-alts.html", context)
@@ -2075,8 +2052,10 @@ def std_alts(request):
 
         else:
             classes = StudentClass.objects.all()
+            sessions = Session.objects.all()
             context = {
                 "classes": classes,
+                "sessions": sessions,
             }
             return render(request, "src/std-alts.html", context)
 

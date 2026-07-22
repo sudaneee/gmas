@@ -73,6 +73,15 @@
 	</div>
 
 
+{% if messages %}
+  {% for msg in messages %}
+    <div class="alert alert-info alert-dismissable">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      {{msg.message}}
+    </div>
+  {% endfor %}
+{% endif %}
+
 {% if request.method == 'POST' and "form1" in request.POST %}
 
 	<div class="row" style="padding-right: 10px;">
@@ -92,19 +101,24 @@
 
 	<form name="form2" method="POST">
 		{% csrf_token %}
+		<input type="hidden" name="session" value="{{ session_name }}">
+		<input type="hidden" name="term" value="{{ term_name }}">
+		<input type="hidden" name="class" value="{{ class_name }}">
+		<input type="hidden" name="subject" value="{{ subject_name }}">
+		<input type="hidden" name="student_id" value="{{ student_id }}">
 
 	 	 <div class="row" style="padding-right: 10px; padding-left: 10px;">
 		    <div class="col">
-				<input type="text" class="form-control" value="{{get_student.student}}" name="name" style="width: 350px;">
+				<input type="text" class="form-control" value="{{get_student.student}}" name="name" style="width: 350px;" readonly>
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{get_student.ca1}} name="ca1" style="text-align: center;">
+				<input type="number" class="form-control" value={{get_student.ca1}} name="ca1" min="0" style="text-align: center;">
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{get_student.ca2}} name="ca2" style="text-align: center;">
+				<input type="number" class="form-control" value={{get_student.ca2}} name="ca2" min="0" style="text-align: center;">
 		    </div>
 		    <div class="col">
-				<input type="number" class="form-control" value={{get_student.exams}} name="exams" style="text-align: center;">
+				<input type="number" class="form-control" value={{get_student.exams}} name="exams" min="0" style="text-align: center;">
 		    </div>
 		</div>
 		<div class="container">

@@ -125,9 +125,18 @@
 			<h4> Changing Student Class </h4>
 
 		</div>
+		<h6> Please select the Session whose Third Term results should be used to decide promotion</h6>
 		<form name="form4" method="POST">
 			{% csrf_token %}
 			 	<div class="row" style="padding-right: 10px;">
+				    <div class="col">
+	                    <select class="form-control" name="session">
+	                    	<option>Session</option>
+	                        {% for i in sessions %}
+	                            <option>{{ i.session_name }}</option>
+	                        {% endfor %}
+	                    </select>
+					</div>
 				    <div class="col">
 	                    <select class="form-control" name="current_class">
 	                    	<option>Current Class</option>
