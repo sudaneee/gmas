@@ -962,31 +962,19 @@ def single_result_update(request):
 # -----------------------------------------
 # GRADING FUNCTION (UPDATED)
 # -----------------------------------------
-def get_grade(total, is_kgn_nur):
+def get_grade(total, is_kgn_nur=None):
     """
     total = numeric score
-    is_kgn_nur = True for Kindergarten/Nursery
+    Same grading scale for every class: 0-39 F, 40-44 E, 45-49 D,
+    50-59 C, 60-69 B, 70-100 A.
     """
-
-    if is_kgn_nur:
-        # KINDERGARTEN / NURSERY GRADING (OLD SYSTEM)
-        if total <= 40: return 'E'
-        elif 41 <= total <= 49: return 'D'
-        elif 50 <= total <= 59: return 'C'
-        elif 60 <= total <= 69: return 'B'
-        elif 70 <= total <= 80: return 'A'
-        elif 81 <= total <= 100: return 'A+'
-        return '-'
-
-    else:
-        # OTHER CLASSES (NEW SYSTEM WITH F)
-        if total < 40: return 'F'
-        elif 40 <= total <= 49: return 'E'
-        elif 50 <= total <= 59: return 'D'
-        elif 60 <= total <= 69: return 'C'
-        elif 70 <= total <= 79: return 'B'
-        elif 80 <= total <= 100: return 'A'
-        return '-'
+    if total < 40: return 'F'
+    elif 40 <= total <= 44: return 'E'
+    elif 45 <= total <= 49: return 'D'
+    elif 50 <= total <= 59: return 'C'
+    elif 60 <= total <= 69: return 'B'
+    elif 70 <= total <= 100: return 'A'
+    return '-'
 
 
 def format_resumption_date(value):
