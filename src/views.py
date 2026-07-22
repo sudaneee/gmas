@@ -999,12 +999,12 @@ def format_resumption_date(value):
         return ""
 
     if isinstance(value, (datetime.datetime, datetime.date)):
-        return value.strftime("%d %B, %Y")
+        return value.strftime("%m-%d-%Y")
 
     value_str = str(value).strip()
     for fmt in ("%m/%d/%y", "%m/%d/%Y", "%d/%m/%y", "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y"):
         try:
-            return datetime.datetime.strptime(value_str, fmt).strftime("%d %B, %Y")
+            return datetime.datetime.strptime(value_str, fmt).strftime("%m-%d-%Y")
         except ValueError:
             continue
 
@@ -1014,7 +1014,7 @@ def format_resumption_date(value):
     if formula_match:
         year, month, day = (int(g) for g in formula_match.groups())
         try:
-            return datetime.date(year, month, day).strftime("%d %B, %Y")
+            return datetime.date(year, month, day).strftime("%m-%d-%Y")
         except ValueError:
             pass
 
