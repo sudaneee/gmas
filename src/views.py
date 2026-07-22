@@ -19,6 +19,7 @@ from src.models import (
 )
 from django.db import connection
 import datetime
+import re
 from collections import defaultdict
 import openpyxl
 from io import BytesIO
@@ -1006,6 +1007,17 @@ def format_resumption_date(value):
             return datetime.datetime.strptime(value_str, fmt).strftime("%d %B, %Y")
         except ValueError:
             continue
+
+    # Some workbooks store the cell as a live formula (e.g. "=DATE(2026,7,9)")
+    # with no cached result, so openpyxl hands back the formula text itself.
+    formula_match = re.match(r'^=DATE\((\d+),(\d+),(\d+)\)$', value_str, re.IGNORECASE)
+    if formula_match:
+        year, month, day = (int(g) for g in formula_match.groups())
+        try:
+            return datetime.date(year, month, day).strftime("%d %B, %Y")
+        except ValueError:
+            pass
+
     return value_str
 
 
@@ -1668,7 +1680,7 @@ def bhvxl(request):
 
             # you may put validations here to check extension or file size
 
-            wb = openpyxl.load_workbook(excel_file)
+            wb = openpyxl.load_workbook(excel_file, data_only=True)
 
             # getting a particular sheet by name out of many sheets
             worksheet = wb["result"]
